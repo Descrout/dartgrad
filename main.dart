@@ -57,7 +57,7 @@ void multipleOutput() {
     [1.0, -1.0],
   ].map((y) => y.valueList).toList();
 
-  final n = MLP(inputLength: 1, outputLengths: [4, 4, 2]);
+  final n = MLP(inputLength: 3, outputLengths: [4, 4, 2]);
 
   late List<List<Value>> ypred;
   late Value loss;
