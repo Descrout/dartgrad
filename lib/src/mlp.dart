@@ -1,5 +1,8 @@
-import 'const.dart';
+import 'dart:math';
+
 import 'value.dart';
+
+final _random = Random();
 
 class Neuron {
   final List<Value> weights;
@@ -9,10 +12,10 @@ class Neuron {
     : assert(inputLength > 0, "number of inputs must be bigger than 0"),
       weights = List.generate(
         inputLength,
-        (_) => Value(Const.rand.nextDouble() * 2 - 1),
+        (_) => Value(_random.nextDouble() * 2 - 1),
         growable: false,
       ),
-      bias = Value(Const.rand.nextDouble() * 2 - 1);
+      bias = Value(_random.nextDouble() * 2 - 1);
 
   Value call(List<Value> inputs) {
     assert(

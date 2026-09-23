@@ -13,7 +13,7 @@ enum Ops {
   exp("exp"),
   pow("pow");
 
-  Ops(this.label);
+  const Ops(this.label);
   final String label;
 
   @override

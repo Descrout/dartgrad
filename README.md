@@ -1,39 +1,75 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# dartgrad
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/tools/pub/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+`dartgrad` is a small scalar-valued automatic differentiation and neural
+network library for Dart. It is inspired by
+[micrograd](https://github.com/karpathy/micrograd) and is intended for learning
+how backpropagation and multilayer perceptrons work.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- Build dynamic computation graphs with `Value` objects.
+- Run reverse-mode automatic differentiation with `backward()`.
+- Use arithmetic, powers, exponentials, and common activation functions.
+- Convert numeric lists to values and calculate softmax probabilities.
+- Create fully connected neural networks with `Neuron`, `Layer`, and `MLP`.
+- Render a computation graph as a text diagram.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Add the package to your project:
+
+```shell
+dart pub add dartgrad
+```
+
+Then import its public API:
+
+```dart
+import 'package:dartgrad/dartgrad.dart';
+```
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Create a scalar expression and calculate its gradients:
 
 ```dart
-const like = 'sample';
+final x = Value(2.0, label: 'x');
+final y = (x * 3 + 2).pow(2);
+
+y.backward();
+
+print(y.data); // 64.0
+print(x.grad); // 48.0
 ```
 
-## Additional information
+Build and train an MLP by updating its parameters:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+final model = MLP(inputLength: 2, outputLengths: [4, 1]);
+final input = [1.0, -2.0].valueList;
+final target = Value(1.0);
+
+for (var step = 0; step < 100; step++) {
+  final prediction = model(input).single;
+  final loss = (prediction - target).pow(2);
+
+  loss.backward();
+  for (final parameter in model.parameters) {
+    parameter.data -= 0.1 * parameter.grad;
+  }
+}
+```
+
+See [`example/dartgrad_example.dart`](example/dartgrad_example.dart) for
+single-output and multi-output training examples.
+
+## Documentation
+
+- [Documentation index](doc/README.md)
+- [Getting started](doc/getting-started.md)
+- [Automatic differentiation](doc/automatic-differentiation.md)
+- [Neural networks](doc/neural-networks.md)
+
+This package is designed for education and experimentation rather than
+production machine-learning workloads. Issues and contributions are welcome in
+the [GitHub repository](https://github.com/Descrout/dartgrad).

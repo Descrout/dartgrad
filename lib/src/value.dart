@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:dartgrad/dartgrad.dart';
 
+final _random = math.Random();
+
 extension NumListX on List<num> {
   List<Value> get valueList =>
       map((e) => Value(e.toDouble())).toList(growable: false);
@@ -15,8 +17,9 @@ extension ValueListX on List<Value> {
       (current, next) => next.data > current.data ? next : current,
     );
 
-    final exponentials = map((value) => (value - maxValue).exp())
-        .toList(growable: false);
+    final exponentials = map(
+      (value) => (value - maxValue).exp(),
+    ).toList(growable: false);
 
     final sum = exponentials.reduce((total, value) => total + value);
 
@@ -43,7 +46,7 @@ extension ValueListX on List<Value> {
       throw StateError('At least one weight must be greater than zero.');
     }
 
-    final target = Const.rand.nextDouble() * total;
+    final target = _random.nextDouble() * total;
     var cumulative = 0.0;
 
     for (var i = 0; i < weights.length; i++) {
