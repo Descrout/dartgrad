@@ -1,6 +1,6 @@
 name: dartgrad
 description: Neural net library, made for learning purposes, inspired by micrograd.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/Descrout/dartgrad
 
 environment:
