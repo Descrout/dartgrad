@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'value.dart';
@@ -66,16 +68,90 @@ class Layer {
 }
 
 class MLP {
+  final int inputLength;
+  final List<int> outputLengths;
   late final List<Layer> layers;
 
-  MLP({required int inputLength, required List<int> outputLengths})
+  MLP({required this.inputLength, required List<int> outputLengths})
     : assert(inputLength > 0, "number of inputs must be bigger than 0"),
-      assert(outputLengths.isNotEmpty, "output lengths must not be empty") {
-    final combined = [inputLength, ...outputLengths];
+      assert(outputLengths.isNotEmpty, "output lengths must not be empty"),
+      outputLengths = List.unmodifiable(outputLengths) {
+    final combined = [inputLength, ...this.outputLengths];
     layers = List.generate(
-      outputLengths.length,
+      this.outputLengths.length,
       (i) => Layer(inputLength: combined[i], outputLength: combined[i + 1]),
     );
+  }
+
+  /// Saves the model architecture, weights, and biases as JSON.
+  Future<void> save(String path) async {
+    final modelData = {
+      'formatVersion': 1,
+      'inputLength': inputLength,
+      'outputLengths': outputLengths,
+      'parameters': parameters.map((parameter) => parameter.data).toList(),
+    };
+
+    const encoder = JsonEncoder.withIndent('  ');
+    await File(path).writeAsString(encoder.convert(modelData));
+  }
+
+  /// Loads a model architecture, weights, and biases from a JSON file.
+  static Future<MLP> load(String path) async {
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(await File(path).readAsString());
+    } on FormatException catch (error) {
+      throw FormatException('Invalid dartgrad model JSON: ${error.message}');
+    }
+
+    if (decoded is! Map<String, dynamic>) {
+      throw const FormatException('Model file must contain a JSON object.');
+    }
+    if (decoded['formatVersion'] != 1) {
+      throw FormatException(
+        'Unsupported model format version: ${decoded['formatVersion']}.',
+      );
+    }
+
+    final inputLength = decoded['inputLength'];
+    final outputLengths = decoded['outputLengths'];
+    final savedParameters = decoded['parameters'];
+
+    if (inputLength is! int || inputLength <= 0) {
+      throw const FormatException('inputLength must be a positive integer.');
+    }
+    if (outputLengths is! List ||
+        outputLengths.isEmpty ||
+        outputLengths.any((length) => length is! int || length <= 0)) {
+      throw const FormatException(
+        'outputLengths must contain positive integers.',
+      );
+    }
+    if (savedParameters is! List ||
+        savedParameters.any(
+          (parameter) => parameter is! num || !parameter.isFinite,
+        )) {
+      throw const FormatException('parameters must contain finite numbers.');
+    }
+
+    final model = MLP(
+      inputLength: inputLength,
+      outputLengths: outputLengths.cast<int>(),
+    );
+    final modelParameters = model.parameters;
+    if (savedParameters.length != modelParameters.length) {
+      throw FormatException(
+        'Expected ${modelParameters.length} parameters, '
+        'but found ${savedParameters.length}.',
+      );
+    }
+
+    for (var i = 0; i < modelParameters.length; i++) {
+      modelParameters[i].data = (savedParameters[i] as num).toDouble();
+    }
+
+    return model;
   }
 
   List<Value> call(List<Value> inputs) {

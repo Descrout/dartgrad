@@ -24,8 +24,9 @@ void singleOutput() {
     // Forward pass
     ypred = [for (final x in xs) n(x.valueList)[0]];
     loss =
-        [for (int i = 0; i < ypred.length; i++) (ypred[i] - ys[i]).pow(2)]
-            .reduce((a, b) => a + b) /
+        [
+          for (int i = 0; i < ypred.length; i++) (ypred[i] - ys[i]).pow(2),
+        ].reduce((a, b) => a + b) /
         ypred.length;
 
     // Backward pass

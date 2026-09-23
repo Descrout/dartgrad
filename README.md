@@ -12,6 +12,7 @@ how backpropagation and multilayer perceptrons work.
 - Use arithmetic, powers, exponentials, and common activation functions.
 - Convert numeric lists to values and calculate softmax probabilities.
 - Create fully connected neural networks with `Neuron`, `Layer`, and `MLP`.
+- Save trained MLP architectures, weights, and biases to JSON and load them.
 - Render a computation graph as a text diagram.
 
 ## Getting started
@@ -58,6 +59,15 @@ for (var step = 0; step < 100; step++) {
     parameter.data -= 0.1 * parameter.grad;
   }
 }
+```
+
+Save the trained model and load it again later:
+
+```dart
+await model.save('model.json');
+
+final loadedModel = await MLP.load('model.json');
+final prediction = loadedModel(input).single;
 ```
 
 See [`example/dartgrad_example.dart`](example/dartgrad_example.dart) for

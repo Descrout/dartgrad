@@ -33,3 +33,23 @@ for (var step = 0; step < 100; step++) {
 Every neuron currently uses `tanh`, including neurons in the final layer.
 Inputs must match the model's `inputLength`; outputs follow the final value in
 `outputLengths`.
+
+## Saving and loading
+
+Save a trained model to a JSON file with `save()`:
+
+```dart
+await model.save('model.json');
+```
+
+Restore its architecture, weights, and biases with `MLP.load()`:
+
+```dart
+final model = await MLP.load('model.json');
+final prediction = model([2.0, 3.0, -1.0].valueList).single;
+```
+
+The file includes a format version so future formats can be distinguished.
+Gradients are not persisted because they are temporary values produced during
+backpropagation. File persistence uses `dart:io` and is intended for Dart VM
+platforms.

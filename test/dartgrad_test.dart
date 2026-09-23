@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartgrad/dartgrad.dart';
 import 'package:test/test.dart';
 
@@ -37,5 +39,32 @@ void main() {
     expect(output, hasLength(1));
     expect(output.single.data, inInclusiveRange(-1, 1));
     expect(model.parameters, hasLength(11));
+  });
+
+  test('MLP saves and loads its architecture and parameters', () async {
+    final directory = await Directory.systemTemp.createTemp('dartgrad_test_');
+    final path = '${directory.path}${Platform.pathSeparator}model.json';
+
+    try {
+      final model = MLP(inputLength: 2, outputLengths: [3, 1]);
+      for (var i = 0; i < model.parameters.length; i++) {
+        model.parameters[i].data = i / 10;
+      }
+      final input = [0.5, -1.0].valueList;
+      final expectedOutput = model(input).single.data;
+
+      await model.save(path);
+      final loaded = await MLP.load(path);
+
+      expect(loaded.inputLength, 2);
+      expect(loaded.outputLengths, [3, 1]);
+      expect(
+        loaded.parameters.map((parameter) => parameter.data),
+        model.parameters.map((parameter) => parameter.data),
+      );
+      expect(loaded(input).single.data, closeTo(expectedOutput, 1e-12));
+    } finally {
+      await directory.delete(recursive: true);
+    }
   });
 }
