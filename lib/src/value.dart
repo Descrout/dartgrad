@@ -1,8 +1,6 @@
 import 'dart:math' as math;
 
-import 'activations.dart';
-import 'const.dart';
-import 'operation.dart';
+import 'package:dartgrad/dartgrad.dart';
 
 extension NumListX on List<num> {
   List<Value> get valueList =>
@@ -101,7 +99,7 @@ class Value {
     final o = other is num ? Value(other.toDouble()) : other as Value;
 
     return Value(
-      this.data + o.data,
+      data + o.data,
       prev: Operation(left: this, right: o, op: .add),
     );
   }
@@ -119,7 +117,7 @@ class Value {
     final o = other is num ? Value(other.toDouble()) : other as Value;
 
     return Value(
-      this.data * o.data,
+      data * o.data,
       prev: Operation(left: this, right: o, op: .mult),
     );
   }

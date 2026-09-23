@@ -1,8 +1,7 @@
-import 'mlp.dart';
-import 'value.dart';
+import 'package:dartgrad/dartgrad.dart';
 
 void main() {
-  //singleOutput();
+  singleOutput();
   multipleOutput();
 }
 
@@ -63,7 +62,6 @@ void multipleOutput() {
   late Value loss;
 
   for (int step = 0; step < 1000; step++) {
-    // Her örnek için iki Value döner.
     ypred = [for (final x in xs) n(x.valueList)];
 
     final errors = <Value>[];
@@ -74,10 +72,7 @@ void multipleOutput() {
       }
     }
 
-    // Bütün output hatalarını tek scalar loss'ta topluyoruz.
     loss = errors.reduce((total, error) => total + error);
-
-    // İstersen MSE için ortalamasını alabilirsin:
     loss = loss / errors.length;
 
     loss.backward();
