@@ -10,7 +10,8 @@ how backpropagation and multilayer perceptrons work.
 - Build dynamic computation graphs with `Value` objects.
 - Run reverse-mode automatic differentiation with `backward()`.
 - Use arithmetic, powers, exponentials, and common activation functions.
-- Convert numeric lists to values and calculate softmax probabilities.
+- Select `tanh`, `sigmoid`, `relu`, `leakyRelu`, or `linear` per layer.
+- Calculate differentiable softmax probabilities and cross-entropy loss.
 - Create fully connected neural networks with `Neuron`, `Layer`, and `MLP`.
 - Save trained MLP architectures, weights, and biases to JSON and load them.
 - Render a computation graph as a text diagram.
@@ -59,6 +60,34 @@ for (var step = 0; step < 100; step++) {
     parameter.data -= 0.1 * parameter.grad;
   }
 }
+```
+
+Every layer defaults to `tanh`. Pass one activation per layer to customize the
+model:
+
+```dart
+final model = MLP(
+  inputLength: 2,
+  outputLengths: [4, 1],
+  activations: [Activation.relu, Activation.linear],
+);
+```
+
+For multi-class classification, use a linear output layer and calculate
+cross-entropy directly from its logits:
+
+```dart
+final classifier = MLP(
+  inputLength: 784,
+  outputLengths: [128, 10],
+  activations: [Activation.relu, Activation.linear],
+);
+
+final logits = classifier(image.valueList);
+final loss = logits.crossEntropy(targetClass: label);
+loss.backward();
+
+final probabilities = logits.softmax;
 ```
 
 Save the trained model and load it again later:

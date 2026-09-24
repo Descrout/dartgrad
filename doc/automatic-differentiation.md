@@ -7,7 +7,7 @@ chain rule. Gradients in that graph are reset before each backward pass.
 Supported differentiable operations include:
 
 - Addition, subtraction, multiplication, and division
-- `pow()` and `exp()`
+- `pow()`, `exp()`, and `log()`
 - `tanh()`, `sigmoid()`, `relu()`, and `leakyRelu()`
 
 ```dart
@@ -25,6 +25,16 @@ print(y.grad);
 Call `diagram()` to obtain a text representation of a computation graph, or
 `show()` to print it. Labels make leaf values easier to identify.
 
-For a list of logits, `softmax` returns normalized `double` probabilities.
-`softmaxPick` randomly selects one of the original values using those
+For a list of logits, `softmax` returns normalized `Value` probabilities that
+remain connected to the computation graph:
+
+```dart
+final logits = [1.0, 2.0, 3.0].valueList;
+final probabilities = logits.softmax;
+
+probabilities.last.backward();
+print(logits.last.grad);
+```
+
+`softmaxPick` randomly selects one of the original values using the softmax
 probabilities as weights.

@@ -10,7 +10,8 @@ extension NumListX on List<num> {
 }
 
 extension ValueListX on List<Value> {
-  List<double> get softmax {
+  /// Returns differentiable, normalized probabilities for these logits.
+  List<Value> get softmax {
     if (isEmpty) return [];
 
     final maxValue = reduce(
@@ -23,9 +24,24 @@ extension ValueListX on List<Value> {
 
     final sum = exponentials.reduce((total, value) => total + value);
 
-    return exponentials
-        .map((value) => value.data / sum.data)
-        .toList(growable: false);
+    return exponentials.map((value) => value / sum).toList(growable: false);
+  }
+
+  /// Calculates numerically stable cross-entropy loss for a class index.
+  Value crossEntropy({required int targetClass}) {
+    if (isEmpty) {
+      throw StateError('Cannot calculate cross-entropy for an empty list.');
+    }
+    RangeError.checkValidIndex(targetClass, this, 'targetClass');
+
+    final maxValue = reduce(
+      (current, next) => next.data > current.data ? next : current,
+    );
+    final exponentialSum = map(
+      (value) => (value - maxValue).exp(),
+    ).reduce((total, value) => total + value);
+
+    return exponentialSum.log() + maxValue - this[targetClass];
   }
 
   Value get softmaxPick {
@@ -35,11 +51,11 @@ extension ValueListX on List<Value> {
     final weights = softmax;
 
     for (final weight in weights) {
-      if (!weight.isFinite || weight < 0) {
+      if (!weight.data.isFinite || weight.data < 0) {
         throw ArgumentError('weights must be finite and non-negative.');
       }
 
-      total += weight;
+      total += weight.data;
     }
 
     if (total <= 0) {
@@ -50,14 +66,14 @@ extension ValueListX on List<Value> {
     var cumulative = 0.0;
 
     for (var i = 0; i < weights.length; i++) {
-      cumulative += weights[i];
+      cumulative += weights[i].data;
 
       if (target < cumulative) {
         return this[i];
       }
     }
 
-    return this[weights.lastIndexWhere((weight) => weight > 0)];
+    return this[weights.lastIndexWhere((weight) => weight.data > 0)];
   }
 }
 
@@ -162,6 +178,13 @@ class Value {
     return Value(
       math.exp(data),
       prev: Operation(left: this, op: .exp),
+    );
+  }
+
+  Value log() {
+    return Value(
+      math.log(data),
+      prev: Operation(left: this, op: .log),
     );
   }
 

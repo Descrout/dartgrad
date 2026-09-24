@@ -11,6 +11,7 @@ enum Ops {
   relu("relu"),
   leakyRelu("leakyRelu"),
   exp("exp"),
+  log("log"),
   pow("pow");
 
   const Ops(this.label);
@@ -34,6 +35,7 @@ class Operation {
       .relu => (Activations.dRelu(left.data), 0),
       .leakyRelu => (Activations.dLeakyRelu(left.data), 0),
       .exp => (math.exp(left.data), 0),
+      .log => (1 / left.data, 0),
       .pow => (right!.data * math.pow(left.data, right!.data - 1), 0),
     };
 
