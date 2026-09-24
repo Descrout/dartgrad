@@ -44,13 +44,44 @@ extension ValueListX on List<Value> {
     return exponentialSum.log() + maxValue - this[targetClass];
   }
 
-  Value get softmaxPick {
+  int get argmax {
+    assert(isNotEmpty, 'Cannot pick from an empty list.');
+
+    double max = double.negativeInfinity;
+    int idx = -1;
+
+    for (int i = 0; i < length; i++) {
+      if (this[i].data > max) {
+        idx = i;
+        max = this[i].data;
+      }
+    }
+
+    return idx;
+  }
+
+  int get argmin {
+    assert(isNotEmpty, 'Cannot pick from an empty list.');
+
+    double min = double.infinity;
+    int idx = -1;
+
+    for (int i = 0; i < length; i++) {
+      if (this[i].data < min) {
+        idx = i;
+        min = this[i].data;
+      }
+    }
+
+    return idx;
+  }
+
+  int get weightedRandPick {
     assert(isNotEmpty, 'Cannot pick from an empty list.');
 
     double total = 0.0;
-    final weights = softmax;
 
-    for (final weight in weights) {
+    for (final weight in this) {
       if (!weight.data.isFinite || weight.data < 0) {
         throw ArgumentError('weights must be finite and non-negative.');
       }
@@ -65,15 +96,15 @@ extension ValueListX on List<Value> {
     final target = _random.nextDouble() * total;
     var cumulative = 0.0;
 
-    for (var i = 0; i < weights.length; i++) {
-      cumulative += weights[i].data;
+    for (var i = 0; i < length; i++) {
+      cumulative += this[i].data;
 
       if (target < cumulative) {
-        return this[i];
+        return i;
       }
     }
 
-    return this[weights.lastIndexWhere((weight) => weight.data > 0)];
+    return lastIndexWhere((weight) => weight.data > 0);
   }
 }
 

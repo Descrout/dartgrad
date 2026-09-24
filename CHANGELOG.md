@@ -1,3 +1,12 @@
+## 1.0.3
+
+- Added `argmax` and `argmin` to `List<Value>` for finding the index of the
+  largest or smallest value.
+- Added `weightedRandPick` to select an index randomly from non-negative
+  weights.
+- Breaking: removed `softmaxPick`. Apply `softmax` explicitly and use
+  `weightedRandPick` when sampling from logits.
+
 ## 1.0.2
 
 - Added per-layer activation configuration to `MLP` with `tanh` defaults.

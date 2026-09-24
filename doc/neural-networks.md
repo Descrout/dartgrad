@@ -81,6 +81,15 @@ normalized class probabilities are needed. It returns `List<Value>` and also
 remains differentiable. Softmax does not need to be configured as a per-neuron
 activation because it operates on the complete output layer.
 
+Use `logits.argmax` to get the most likely class index. To sample a class
+instead, call `weightedRandPick` on the probabilities:
+
+```dart
+final probabilities = logits.softmax;
+final predictedClass = logits.argmax;
+final sampledClass = probabilities.weightedRandPick;
+```
+
 ## Saving and loading
 
 Save a trained model to a JSON file with `save()`:

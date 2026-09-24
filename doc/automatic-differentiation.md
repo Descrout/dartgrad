@@ -36,5 +36,15 @@ probabilities.last.backward();
 print(logits.last.grad);
 ```
 
-`softmaxPick` randomly selects one of the original values using the softmax
-probabilities as weights.
+Use `argmax` or `argmin` to get the index of the largest or smallest value. For
+random sampling, `weightedRandPick` treats the list as non-negative weights and
+returns the selected index:
+
+```dart
+final predictedClass = logits.argmax;
+final sampledClass = probabilities.weightedRandPick;
+```
+
+`weightedRandPick` does not apply softmax automatically. Its weights must be
+finite and non-negative, and at least one must be greater than zero. Apply
+`softmax` first when sampling from logits.

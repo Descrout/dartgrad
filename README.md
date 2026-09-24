@@ -12,6 +12,7 @@ how backpropagation and multilayer perceptrons work.
 - Use arithmetic, powers, exponentials, and common activation functions.
 - Select `tanh`, `sigmoid`, `relu`, `leakyRelu`, or `linear` per layer.
 - Calculate differentiable softmax probabilities and cross-entropy loss.
+- Find minimum and maximum indexes or sample an index from weighted values.
 - Create fully connected neural networks with `Neuron`, `Layer`, and `MLP`.
 - Save trained MLP architectures, weights, and biases to JSON and load them.
 - Render a computation graph as a text diagram.
@@ -88,6 +89,8 @@ final loss = logits.crossEntropy(targetClass: label);
 loss.backward();
 
 final probabilities = logits.softmax;
+final predictedClass = logits.argmax;
+final sampledClass = probabilities.weightedRandPick;
 ```
 
 Save the trained model and load it again later:
